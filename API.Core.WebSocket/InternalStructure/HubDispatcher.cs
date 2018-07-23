@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Core.WebSocket.Hubs;
 using API.Core.WebSocket.Hubs.Lookup;
 using API.Core.WebSocket.Extensions;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace API.Core.WebSocket.InternalStructure
 {
@@ -16,8 +13,12 @@ namespace API.Core.WebSocket.InternalStructure
     {
         private IHubManager _manager;
         private IHubActivator _activator;
+        private readonly JsonSerializerSettings _setting;
         public HubDispatcher()
         {
+            _setting = new JsonSerializerSettings();
+            _setting.TypeNameHandling = TypeNameHandling.All;
+            _setting.MissingMemberHandling = MissingMemberHandling.Error;
         }
         public override void Init(IDependencyResolver resolver)
         {
@@ -28,9 +29,8 @@ namespace API.Core.WebSocket.InternalStructure
         public override Task ProcessRequest(HttpContext context)
         {
             if (context == null)
-            {
                 throw new ArgumentNullException("context");
-            }
+
             return base.ProcessRequest(context);
         }
         protected override Task OnConnected(HostContext context)
@@ -43,12 +43,7 @@ namespace API.Core.WebSocket.InternalStructure
         }
         protected override Task OnReceived(HostContext context, string data)
         {
-            var request = Newtonsoft.Json.JsonConvert.DeserializeObject<HubRequest>(data);
-
-            var setting = new Newtonsoft.Json.JsonSerializerSettings();
-            setting.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
-            setting.MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Error;
-
+            var request = JsonConvert.DeserializeObject<HubRequest>(data);
             foreach (var req in request.Value)
             {
                 var hubDescriptor = _manager.GetHub(req.Hub);
@@ -56,7 +51,7 @@ namespace API.Core.WebSocket.InternalStructure
                 var hub = _activator.Create(hubDescriptor);
 
                 methodDescriptor.Invoke(hub, req.Args.Select((r, index) =>
-                    Newtonsoft.Json.JsonConvert.DeserializeObject(r[index].ToString(), methodDescriptor.Parameters[index].ParameterType, setting)).ToArray());
+                    JsonConvert.DeserializeObject(r[index].ToString(), methodDescriptor.Parameters[index].ParameterType, _setting)).ToArray());
             }
             return base.OnReceived(context, data);
         }

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace API.Core.WebSocket.InternalStructure
+namespace API.Core.WebSocket.Client.InternalStructure
 {
     [JsonObject]
     public class HubDemand

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace API.Core.WebSocket.InternalStructure
 {
-    public class NegotiationResponse
+    [JsonObject]
+    public class NegotiateResponse
     {
         public string ConnectionId { get; set; }
         public string ConnectionToken { get; set; }

@@ -130,7 +130,7 @@ namespace API.Core.WebSocket
             string connectionToken = connectionID + ':';
 
             context.Response.ContentType = "application/json";
-            var payload = new NegotiationResponse()
+            var payload = new NegotiateResponse()
             {
                 Url = context.Request.PathBase.ToString().Replace("/negotiate", ""),
                 ConnectionToken = ProtectedData.Protect(connectionToken),
