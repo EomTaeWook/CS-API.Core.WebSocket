@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using API.Core.WebSocket.InternalStructure;
-using API.Core.WebSocket.Extensions;
 using System.Diagnostics;
 using API.Core.WebSocket.Context;
+using API.Core.WebSocket.InternalStructure;
+using API.Core.WebSocket.Extensions;
 
 namespace API.Core.WebSocket
 {
     public abstract class DurabilityConnection
     {
+        public IConnection Connection { get; private set; }
         protected IProtectedData ProtectedData { get; private set; }
         private bool _initialized;
         protected virtual Task OnConnected(HostContext context)
@@ -33,20 +34,16 @@ namespace API.Core.WebSocket
         public virtual void Init(IDependencyResolver resolver)
         {
             if (resolver == null)
-            {
                 throw new ArgumentNullException("resolver");
-            }
             if (_initialized)
-            {
                 return;
-            }
 
             ProtectedData = resolver.GetService<IProtectedData>();
             _initialized = true;
         }
         private bool IsNegotiationRequest(HttpRequest request)
         {
-            return request.Path.ToString().EndsWith("/negotiate", StringComparison.OrdinalIgnoreCase);
+            return request.Path.ToString().EndsWith("/negotiation", StringComparison.OrdinalIgnoreCase);
         }
         public virtual Task ProcessRequest(HttpContext context)
         {
@@ -59,7 +56,7 @@ namespace API.Core.WebSocket
         }
         private Task ProcessRequest(HostContext context)
         {
-           
+
             if (IsNegotiationRequest(context.Request))
             {
                 return ProcessNegotiationRequest(context);
@@ -74,12 +71,12 @@ namespace API.Core.WebSocket
             string message;
             int statusCode;
             TryGetConnectionID(context, connectionToken, out connectionID, out message, out statusCode);
-            if(String.IsNullOrEmpty(connectionID))
+            if (String.IsNullOrEmpty(connectionID))
             {
                 return FailResponse(context.Response, message);
             }
             context.ConnectionID = connectionID;
-            if(context.Request.HttpContext.WebSockets.IsWebSocketRequest)
+            if (context.Request.HttpContext.WebSockets.IsWebSocketRequest)
             {
                 var stateObject = new DefaultWebSocketContext();
                 stateObject.Received = data => { return OnReceived(context, data); };
@@ -87,7 +84,7 @@ namespace API.Core.WebSocket
                 stateObject.Connected = () => { return OnConnected(context); };
 
                 stateObject.Disconnected = clean => { return OnDisconnected(context, clean); };
-
+                Connection = stateObject;
                 return stateObject.ProcessReqeust(context);
             }
             return Task.CompletedTask;
@@ -115,12 +112,12 @@ namespace API.Core.WebSocket
             }
 
             var tokens = unprotectedConnectionToken.Split(':', 2);
-            if(tokens.Length < 1)
+            if (tokens.Length < 1)
             {
                 message = "ConnectionIdIncorrectFormat";
                 return false;
             }
-            connectionID = tokens[0];           
+            connectionID = tokens[0];
             return true;
         }
 
@@ -130,9 +127,9 @@ namespace API.Core.WebSocket
             string connectionToken = connectionID + ':';
 
             context.Response.ContentType = "application/json";
-            var payload = new NegotiateResponse()
+            var payload = new NegotiationResponse()
             {
-                Url = context.Request.PathBase.ToString().Replace("/negotiate", ""),
+                Url = context.Request.PathBase.ToString().Replace("/negotiation", ""),
                 ConnectionToken = ProtectedData.Protect(connectionToken),
                 ConnectionId = connectionID
             };

@@ -7,13 +7,13 @@ using System.Text;
 namespace API.Core.WebSocket.InternalStructure
 {
     [JsonObject]
-    public class HubDemand
+    public class HubMessage
     {
         [JsonProperty("H")]
         public string Hub { get; set; }
         [JsonProperty("M")]
         public string Method { get; set; }
         [JsonProperty("A")]
-        public IEnumerable<JToken> Args { get; set; }
+        public IList<object> Args { get; set; }
     }
 }

@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using API.Core.WebSocket.Context;
+using API.Core.WebSocket.InternalStructure;
+using System;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
@@ -8,13 +9,11 @@ using System.Threading.Tasks;
 
 namespace API.Core.WebSocket.Context
 {
-    public abstract class WebSocketContext : IBaseContext, IDisposable
+    public abstract class WebSocketContext : IContextBase
     {
         private readonly TimeSpan _closeTimeout = TimeSpan.FromMilliseconds(250);
         private System.Net.WebSockets.WebSocket _webSocket;
         private CancellationToken _disconnectToken;
-        private bool _disposed;
-
         public virtual void OnOpen() { }
         public virtual void OnMessage(string message) { throw new NotImplementedException(); }
         public virtual void OnMessage(byte[] message) { throw new NotImplementedException(); }
@@ -34,20 +33,6 @@ namespace API.Core.WebSocket.Context
             OnOpen();
             return ReceiveAsync(_webSocket, _disconnectToken);
         }
-        public virtual Task Send(string message)
-        {
-            if (message == null)
-            {
-                throw new ArgumentNullException("message");
-            }
-            return SendAsync(message);
-        }
-        private Task SendAsync(string message)
-        {
-            var buffer = Encoding.UTF8.GetBytes(message);
-            return SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text);
-        }
-
         private async Task ReceiveAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken disconnectToken)
         {
             bool closedReceived = false;
@@ -86,6 +71,7 @@ namespace API.Core.WebSocket.Context
             {
                 OnClosed();
             }
+
         }
         private async Task SendAsync(ArraySegment<byte> message, WebSocketMessageType messageType, bool endOfMessage = true)
         {
@@ -120,16 +106,11 @@ namespace API.Core.WebSocket.Context
             }
             return Task.CompletedTask;
         }
-        protected virtual void Dispose(bool isDispose)
+        public Task Send(Message message)
         {
-
-        }
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-            Dispose(true);
-            _disposed = true;
+            message.ConnectionID = ConnectionID;
+            var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(message)));
+            return _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
         }
     }
 }

@@ -7,7 +7,9 @@ namespace API.Core.WebSocket.Hubs
 {
     public interface IHub
     {
-        HostContext Context { get; }
+        HostContext Context { get; set; }
+        IHubConnectionContext<dynamic> Clients { get; set; }
+
         Task OnConnected();
         Task OnReconnected();
         Task OnDisconnected(bool stopCalled);

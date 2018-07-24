@@ -23,10 +23,7 @@ namespace API.Core.WebSocket.Context
         {
             Received?.Invoke(message);
         }
-        public override Task Send(string message)
-        {
-            return base.Send(message);
-        }
+
         public override void OnError()
         {
             base.OnError();

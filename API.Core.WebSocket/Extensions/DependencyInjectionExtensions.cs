@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using API.Core.WebSocket.Default;
-using API.Core.WebSocket.InternalStructure;
+using API.Core.WebSocket.Hubs;
 
 namespace API.Core.WebSocket.Extensions
 {
@@ -16,5 +16,6 @@ namespace API.Core.WebSocket.Extensions
             services.TryAddSingleton<HubDispatcher>();
             return services;
         }
+
     }
 }

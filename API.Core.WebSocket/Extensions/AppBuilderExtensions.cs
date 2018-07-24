@@ -8,8 +8,8 @@ namespace API.Core.WebSocket.Extensions
     {
         public static void RunHubSocket(this IApplicationBuilder builder)
         {
-            var resolver = new DefaultDependencyResolver();
             builder.UseWebSockets();
+            var resolver = GlobalHost.DependencyResolver ?? new DefaultDependencyResolver();
             builder.UseMiddleware<HubDispatcherMiddleware>(resolver);
         }
     }

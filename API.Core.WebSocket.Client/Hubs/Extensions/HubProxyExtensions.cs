@@ -20,7 +20,7 @@ namespace API.Core.WebSocket.Client.Hubs.Extensions
 
         public static void On<T>(this IHubProxy proxy, string methodName, Action<T> onAction)
         {
-            if(proxy == null)
+            if (proxy == null)
                 throw new ArgumentNullException("proxy");
             if (String.IsNullOrEmpty(methodName))
                 throw new ArgumentNullException("methodName");

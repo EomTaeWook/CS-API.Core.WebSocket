@@ -9,7 +9,7 @@ namespace API.Core.WebSocket.Client.InternalStructure
     public class HubRequest
     {
         public string Key { get; set; }
-        public IEnumerable<HubDemand> Value { get; set; }
+        public IList<HubDemand> Value { get; set; }
         public string ConnectionID { get; set; }
         public string ConnectionToken { get; set; }
     }

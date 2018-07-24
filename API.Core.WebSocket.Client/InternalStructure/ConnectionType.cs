@@ -7,6 +7,6 @@ namespace API.Core.WebSocket.Client.InternalStructure
     public enum ConnectionType
     {
         Connect = 0,
-        WebSocketConnect
+        ConnectQuery
     }
 }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using API.Core.WebSocket.InternalStructure;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace API.Core.WebSocket.Context
 {
-    public interface IBaseContext
+    public interface IContextBase : IConnection
     {
         Func<string, Task> Received { get; set; }
         Func<Task> Connected { get; set; }

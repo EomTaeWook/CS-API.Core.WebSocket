@@ -9,8 +9,9 @@ namespace API.Core.WebSocket
     public abstract class Hub : IHub, IDisposable
     {
         private bool _disposed;
-        private IHubConnectionContext Clients { get; set; }
-        public HostContext Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public HostContext Context { get; set; }
+        public IHubConnectionContext<dynamic> Clients { get; set; }
+
         protected virtual void Dispose(bool isDispose)
         {
         }

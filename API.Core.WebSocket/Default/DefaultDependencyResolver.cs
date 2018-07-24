@@ -33,10 +33,11 @@ namespace API.Core.WebSocket.Default
             Register(typeof(IHubMethodProvider), () => hubMethod.Value);
 
             var protectData = new Lazy<AesProtectedData>(() => new AesProtectedData());
-            Register(typeof(IProtectedData), () => protectData.Value );
+            Register(typeof(IProtectedData), () => protectData.Value);
 
             var hubManager = new Lazy<DefaultHubManager>(() => new DefaultHubManager(this));
             Register(typeof(IHubManager), () => hubManager.Value);
+
 
             var hubActivator = new Lazy<DefaultHubActivator>(() => new DefaultHubActivator(this));
             Register(typeof(IHubActivator), () => hubActivator.Value);
@@ -44,7 +45,7 @@ namespace API.Core.WebSocket.Default
         }
         private void Dispose(bool isDispose)
         {
-            foreach(var obj in _created)
+            foreach (var obj in _created)
             {
                 obj.Dispose();
             }
@@ -60,23 +61,17 @@ namespace API.Core.WebSocket.Default
         public object GetService(Type serviceType)
         {
             if (serviceType == null)
-            {
                 throw new ArgumentNullException("serviceType");
-            }
             IList<Func<object>> activators;
             if (_resolvers.TryGetValue(serviceType, out activators))
-            {
                 return Created(activators[0]);
-            }
             return null;
         }
 
         public IEnumerable<object> GetServices(Type serviceType)
         {
             if (serviceType == null)
-            {
                 throw new ArgumentNullException("serviceType");
-            }
 
             IList<Func<object>> activators;
             if (_resolvers.TryGetValue(serviceType, out activators))
@@ -107,10 +102,8 @@ namespace API.Core.WebSocket.Default
         private object Created(Func<object> creator)
         {
             object obj = creator();
-            if(obj is IDisposable)
-            {
+            if (obj is IDisposable)
                 _created.Add(obj as IDisposable);
-            }
             return obj;
         }
     }

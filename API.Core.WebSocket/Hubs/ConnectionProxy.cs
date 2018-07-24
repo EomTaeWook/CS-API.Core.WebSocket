@@ -5,10 +5,10 @@ using System.Text;
 
 namespace API.Core.WebSocket.Hubs
 {
-    public interface IHubConnectionContext<T>
+    public class ConnectionProxy : ProxyBase
     {
-        T All { get; }
-
-        T Current { get; }
+        public ConnectionProxy(string hubName, IConnection connection) : base(hubName, connection)
+        {
+        }
     }
 }

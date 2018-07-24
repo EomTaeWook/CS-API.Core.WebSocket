@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +6,10 @@ using System.Text;
 namespace API.Core.WebSocket.InternalStructure
 {
     [JsonObject]
-    public class HubRequest
+    public class NegotiationResponse
     {
-        public string Key { get; set; }
-        public IEnumerable<HubDemand> Value { get; set; }
-        public string ConnectionID { get; set; }
+        public string ConnectionId { get; set; }
         public string ConnectionToken { get; set; }
+        public string Url { get; set; }
     }
 }

@@ -40,16 +40,16 @@ namespace API.Core.WebSocket.Client.Context
                     Stream respStream = resp.GetResponseStream();
                     using (StreamReader sr = new StreamReader(respStream))
                     {
-                        GetNegotiateResponse(sr.ReadToEnd(), out negotiateResponse);
+                        GetNegotiationResponse(sr.ReadToEnd(), out negotiateResponse);
                     }
                 }
             }
             if (negotiateResponse == null)
-               throw new Exception("Connect Error");
+                throw new Exception("Connect Error");
 
             return Task.FromResult(negotiateResponse);
         }
-        protected NegotiateResponse GetNegotiateResponse(string response, out NegotiateResponse negotiateResponse)
+        protected NegotiateResponse GetNegotiationResponse(string response, out NegotiateResponse negotiateResponse)
         {
             if (String.IsNullOrEmpty(response))
                 return negotiateResponse = null;
@@ -62,15 +62,15 @@ namespace API.Core.WebSocket.Client.Context
             switch (type)
             {
                 case ConnectionType.Connect:
-                    return "/negotiate";
-                case ConnectionType.WebSocketConnect:
+                    return "/negotiation";
+                case ConnectionType.ConnectQuery:
                     return "connectionToken";
             }
             return String.Empty;
         }
 
         public virtual Task Send(IConnection connection, string data)
-        {
+        {
             return Task.CompletedTask;
         }
 

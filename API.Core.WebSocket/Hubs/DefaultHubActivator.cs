@@ -17,15 +17,10 @@ namespace API.Core.WebSocket.Hubs
         public IHub Create(HubDescriptor descriptor)
         {
             if (descriptor == null)
-            {
                 throw new ArgumentNullException("descriptor");
-            }
 
             if (descriptor.HubType == null)
-            {
                 return null;
-            }
-
             object hub = _resolver.GetService(descriptor.HubType) ?? Activator.CreateInstance(descriptor.HubType);
             return hub as IHub;
         }

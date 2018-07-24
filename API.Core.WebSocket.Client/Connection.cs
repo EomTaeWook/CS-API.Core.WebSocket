@@ -26,6 +26,7 @@ namespace API.Core.WebSocket.Client
 
         protected Connection(string url)
         {
+            _disconnectCts = new CancellationTokenSource();
             _sycn = new object();
             Url = url;
         }
@@ -41,8 +42,7 @@ namespace API.Core.WebSocket.Client
         }
         public Task Send(string data)
         {
-            var seg = new ArraySegment<byte>(Encoding.UTF8.GetBytes(data));
-            return Task.CompletedTask;
+            return Client.Send(this, data);
         }
         public Task Start()
         {
@@ -70,7 +70,7 @@ namespace API.Core.WebSocket.Client
         }
         public void OnReceived(string data)
         {
-            
+
         }
     }
 }

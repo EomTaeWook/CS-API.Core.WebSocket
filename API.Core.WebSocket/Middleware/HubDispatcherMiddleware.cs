@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using API.Core.WebSocket.InternalStructure;
+using API.Core.WebSocket.Hubs;
 
 namespace API.Core.WebSocket.Middleware
 {
