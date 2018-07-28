@@ -18,6 +18,5 @@ namespace API.Core.WebSocket.Hubs.Pipeline
             Connection = connection;
             Message = message;
         }
-        
     }
 }

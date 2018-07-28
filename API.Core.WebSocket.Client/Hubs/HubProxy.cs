@@ -39,10 +39,10 @@ namespace API.Core.WebSocket.Client.Hubs
             {
                 tokenifiedArguments[i] = args[i] != null ? JToken.FromObject(args[i]) : JValue.CreateNull();
             }
-            var hubReqeust = new HubRequest()
+            var hubReqeust = new Message()
             {
-                Value = new List<HubDemand>(){
-                    new HubDemand()
+                Value = new List<HubMessage>(){
+                    new HubMessage()
                     {
                         Hub = _hubName,
                         Method = method,

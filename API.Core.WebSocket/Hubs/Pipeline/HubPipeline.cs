@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using API.Core.WebSocket.InternalStructure;
 
 namespace API.Core.WebSocket.Hubs.Pipeline
 {
@@ -15,7 +12,7 @@ namespace API.Core.WebSocket.Hubs.Pipeline
         }
         public Task Send(IHubPipelineInvokerContext context)
         {
-            if(Invoke != null)
+            if (Invoke != null)
                 return Invoke(context);
 
             return Task.CompletedTask;

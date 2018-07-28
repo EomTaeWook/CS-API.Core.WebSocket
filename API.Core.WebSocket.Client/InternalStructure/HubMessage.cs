@@ -14,6 +14,6 @@ namespace API.Core.WebSocket.Client.InternalStructure
         [JsonProperty("M")]
         public string Method { get; set; }
         [JsonProperty("A")]
-        public IList<JToken> Args { get; set; }
+        public IList<object> Args { get; set; }
     }
 }

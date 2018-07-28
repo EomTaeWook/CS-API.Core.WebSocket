@@ -1,4 +1,5 @@
-﻿using API.Core.WebSocket.InternalStructure;
+﻿using API.Core.WebSocket.Hubs.Pipeline;
+using API.Core.WebSocket.InternalStructure;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,18 +12,17 @@ namespace API.Core.WebSocket.Hubs
         public dynamic All => throw new NotImplementedException();
         public IHubProxy Current { get; private set; }
         protected IConnection Connection { get; private set; }
+        protected IHubPipelineInvoker Invoker { get; private set; }
 
-        object IHubConnectionContext<object>.Current => throw new NotImplementedException();
-
-        public HubConnectionContextBase(string hubName, IConnection connection)
+        public HubConnectionContextBase(string hubName, IConnection connection, IHubPipelineInvoker invoker)
         {
             HubName = hubName;
             Connection = connection;
-            Current = new ConnectionProxy(hubName, connection);
+            Invoker = invoker;
+            Current = new ConnectionProxy(hubName, connection, invoker);
         }
         protected HubConnectionContextBase()
         {
-
         }
     }
 }
