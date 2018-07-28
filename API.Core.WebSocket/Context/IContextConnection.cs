@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace API.Core.WebSocket.InternalStructure
+namespace API.Core.WebSocket.Context
 {
-    public interface IConnection
+    public interface IContextConnection
     {
-        Task Send(Message message);
+        void Send(Func<Message, Task> callback, object state);
     }
 }

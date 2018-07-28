@@ -6,6 +6,7 @@ using API.Core.WebSocket.Hubs;
 using API.Core.WebSocket.Hubs.Lookup;
 using API.Core.WebSocket.InternalStructure;
 using System.Linq;
+using API.Core.WebSocket.Hubs.Pipeline;
 
 namespace API.Core.WebSocket.Default
 {
@@ -33,7 +34,7 @@ namespace API.Core.WebSocket.Default
             Register(typeof(IHubMethodProvider), () => hubMethod.Value);
 
             var protectData = new Lazy<AesProtectedData>(() => new AesProtectedData());
-            Register(typeof(IProtectedData), () => protectData.Value);
+            Register(typeof(IProtectedData), () => protectData.Value );
 
             var hubManager = new Lazy<DefaultHubManager>(() => new DefaultHubManager(this));
             Register(typeof(IHubManager), () => hubManager.Value);
@@ -42,10 +43,13 @@ namespace API.Core.WebSocket.Default
             var hubActivator = new Lazy<DefaultHubActivator>(() => new DefaultHubActivator(this));
             Register(typeof(IHubActivator), () => hubActivator.Value);
 
+            var hubPipeline = new Lazy<HubPipeline>(() => new HubPipeline());
+            Register(typeof(IHubPipelineInvoker), () => hubPipeline.Value);
+
         }
         private void Dispose(bool isDispose)
         {
-            foreach (var obj in _created)
+            foreach(var obj in _created)
             {
                 obj.Dispose();
             }
@@ -102,7 +106,7 @@ namespace API.Core.WebSocket.Default
         private object Created(Func<object> creator)
         {
             object obj = creator();
-            if (obj is IDisposable)
+            if(obj is IDisposable)
                 _created.Add(obj as IDisposable);
             return obj;
         }

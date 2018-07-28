@@ -69,7 +69,7 @@ namespace API.Core.WebSocket.Client
             });
         }
         public void OnReceived(string data)
-        {
+        {   
 
         }
     }

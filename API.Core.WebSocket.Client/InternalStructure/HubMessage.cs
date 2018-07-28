@@ -7,7 +7,7 @@ using System.Text;
 namespace API.Core.WebSocket.Client.InternalStructure
 {
     [JsonObject]
-    public class HubDemand
+    public class HubMessage
     {
         [JsonProperty("H")]
         public string Hub { get; set; }

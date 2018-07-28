@@ -7,6 +7,7 @@ using API.Core.WebSocket.Extensions;
 using System.Linq;
 using Newtonsoft.Json;
 using API.Core.WebSocket.InternalStructure;
+using API.Core.WebSocket.Hubs.Pipeline;
 
 namespace API.Core.WebSocket.Hubs
 {
@@ -14,6 +15,7 @@ namespace API.Core.WebSocket.Hubs
     {
         private IHubManager _manager;
         private IHubActivator _activator;
+        private IHubPipelineInvoker _pipelineInvoker;
         public HubDispatcher()
         {
         }
@@ -21,6 +23,7 @@ namespace API.Core.WebSocket.Hubs
         {
             _manager = resolver.GetService<IHubManager>();
             _activator = resolver.GetService<IHubActivator>();
+            _pipelineInvoker = resolver.GetService<IHubPipelineInvoker>();
             base.Init(resolver);
         }
         public override Task ProcessRequest(HttpContext context)
@@ -54,7 +57,7 @@ namespace API.Core.WebSocket.Hubs
                 var hub = _activator.Create(hubDescriptor);
                 hub.Clients = new HubConnectionContextBase(hubDescriptor.Name, Connection);
                 methodDescriptor.Invoke(hub,
-                    req.Args.Select((r, index) => Newtonsoft.Json.JsonConvert.DeserializeObject(r.ToString(), methodDescriptor.Parameters[index].ParameterType, setting)).ToArray());
+                    req.Args.Select((r, index) => JsonConvert.DeserializeObject(r.ToString(), methodDescriptor.Parameters[index].ParameterType, setting)).ToArray());
             }
             return base.OnReceived(context, data);
         }

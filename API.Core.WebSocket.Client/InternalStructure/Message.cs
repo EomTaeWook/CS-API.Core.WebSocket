@@ -6,10 +6,10 @@ using System.Text;
 namespace API.Core.WebSocket.Client.InternalStructure
 {
     [JsonObject]
-    public class HubRequest
+    public class Message
     {
         public string Key { get; set; }
-        public IList<HubDemand> Value { get; set; }
+        public IList<HubMessage> Value { get; set; }
         public string ConnectionID { get; set; }
         public string ConnectionToken { get; set; }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace API.Core.WebSocket.Context
 {
-    public interface IContextBase : IConnection
+    public interface IContextBase
     {
         Func<string, Task> Received { get; set; }
         Func<Task> Connected { get; set; }

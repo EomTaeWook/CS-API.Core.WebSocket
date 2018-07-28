@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using API.Core.WebSocket.Context;
 using API.Core.WebSocket.InternalStructure;
 using API.Core.WebSocket.Extensions;
+using System.Diagnostics;
+using API.Core.WebSocket.Context;
 
 namespace API.Core.WebSocket
 {
@@ -35,6 +35,7 @@ namespace API.Core.WebSocket
         {
             if (resolver == null)
                 throw new ArgumentNullException("resolver");
+
             if (_initialized)
                 return;
 
@@ -48,44 +49,39 @@ namespace API.Core.WebSocket
         public virtual Task ProcessRequest(HttpContext context)
         {
             if (!_initialized)
-            {
                 throw new InvalidOperationException("ConnectionNotInitialized");
-            }
+
             var hostContext = new HostContext(context.Request);
             return ProcessRequest(hostContext);
         }
         private Task ProcessRequest(HostContext context)
         {
-
+           
             if (IsNegotiationRequest(context.Request))
-            {
                 return ProcessNegotiationRequest(context);
-            }
 
             string connectionToken = context.Request.Query["connectionToken"];
             if (String.IsNullOrEmpty(connectionToken))
-            {
                 return FailResponse(context.Response, "Bad Reqeust");
-            }
+
             string connectionID;
             string message;
             int statusCode;
             TryGetConnectionID(context, connectionToken, out connectionID, out message, out statusCode);
-            if (String.IsNullOrEmpty(connectionID))
-            {
+            if(String.IsNullOrEmpty(connectionID))
                 return FailResponse(context.Response, message);
-            }
+
             context.ConnectionID = connectionID;
             if (context.Request.HttpContext.WebSockets.IsWebSocketRequest)
             {
-                var stateObject = new DefaultWebSocketContext();
-                stateObject.Received = data => { return OnReceived(context, data); };
+                var connectionContext = new DefaultWebSocketContext();
+                connectionContext.Received = data => { return OnReceived(context, data); };
 
-                stateObject.Connected = () => { return OnConnected(context); };
+                connectionContext.Connected = () => { return OnConnected(context); };
 
-                stateObject.Disconnected = clean => { return OnDisconnected(context, clean); };
-                Connection = stateObject;
-                return stateObject.ProcessReqeust(context);
+                connectionContext.Disconnected = clean => { return OnDisconnected(context, clean); };
+                Connection = new Connection(connectionContext.ConnectionID);
+                return connectionContext.ProcessReqeustAsync(context, Connection);
             }
             return Task.CompletedTask;
         }
@@ -112,15 +108,15 @@ namespace API.Core.WebSocket
             }
 
             var tokens = unprotectedConnectionToken.Split(':', 2);
-            if (tokens.Length < 1)
+            if(tokens.Length < 1)
             {
                 message = "ConnectionIdIncorrectFormat";
                 return false;
             }
-            connectionID = tokens[0];
+            connectionID = tokens[0];           
             return true;
         }
-
+        
         private Task ProcessNegotiationRequest(HostContext context)
         {
             string connectionID = Guid.NewGuid().ToString("d");

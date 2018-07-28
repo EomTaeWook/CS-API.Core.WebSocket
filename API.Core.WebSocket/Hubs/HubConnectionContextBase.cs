@@ -9,7 +9,7 @@ namespace API.Core.WebSocket.Hubs
     {
         protected string HubName { get; private set; }
         public dynamic All => throw new NotImplementedException();
-        public IClientProxy Current { get; private set; }
+        public IHubProxy Current { get; private set; }
         protected IConnection Connection { get; private set; }
 
         object IHubConnectionContext<object>.Current => throw new NotImplementedException();

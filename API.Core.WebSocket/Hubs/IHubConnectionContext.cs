@@ -9,6 +9,6 @@ namespace API.Core.WebSocket.Hubs
     {
         T All { get; }
 
-        T Current { get; }
+        IHubProxy Current { get; }
     }
 }

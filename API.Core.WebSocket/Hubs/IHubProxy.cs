@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace API.Core.WebSocket.Hubs
 {
-    public interface IClientProxy
+    public interface IHubProxy
     {
         Task Invoke(string method, params object[] args);
     }

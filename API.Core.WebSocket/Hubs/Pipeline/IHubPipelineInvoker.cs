@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace API.Core.WebSocket.InternalStructure
+namespace API.Core.WebSocket.Hubs.Pipeline
 {
-    public interface IConnection
+    public interface IHubPipelineInvoker
     {
-        Task Send(Message message);
+        Task Send(IHubPipelineInvokerContext context);
     }
 }

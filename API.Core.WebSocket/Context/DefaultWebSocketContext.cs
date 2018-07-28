@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API.Core.WebSocket.InternalStructure;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +11,10 @@ namespace API.Core.WebSocket.Context
         public DefaultWebSocketContext()
         {
         }
-        public Task ProcessReqeust(HostContext context)
+        public async Task ProcessReqeustAsync(HostContext context, IConnection connection)
         {
-            var task = context.Request.HttpContext.WebSockets.AcceptWebSocketAsync();
-            return ProcessReqeust(task.Result);
+            var socket = await context.Request.HttpContext.WebSockets.AcceptWebSocketAsync();
+            await ProcessReqeust(socket, connection as IContextConnection);
         }
         public override void OnMessage(byte[] message)
         {
@@ -23,7 +24,10 @@ namespace API.Core.WebSocket.Context
         {
             Received?.Invoke(message);
         }
-
+        public override Task OnSend(Message message)
+        {
+            return Send(message);
+        }
         public override void OnError()
         {
             base.OnError();

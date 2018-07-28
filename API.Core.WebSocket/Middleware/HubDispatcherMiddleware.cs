@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using API.Core.WebSocket.InternalStructure;
 using API.Core.WebSocket.Hubs;
 
 namespace API.Core.WebSocket.Middleware
@@ -13,7 +12,7 @@ namespace API.Core.WebSocket.Middleware
         private readonly IDependencyResolver _resolver;
         public HubDispatcherMiddleware(RequestDelegate next, IDependencyResolver resolver)
         {
-            _resolver = resolver;
+            _resolver = resolver ?? GlobalHost.DependencyResolver;
         }
         public Task Invoke(HttpContext context)
         {

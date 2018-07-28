@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace API.Core.WebSocket.InternalStructure
+namespace API.Core.WebSocketInternalStructure
 {
     interface IWebscoketHost
     {

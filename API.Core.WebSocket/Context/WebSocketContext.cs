@@ -1,11 +1,11 @@
-﻿using API.Core.WebSocket.Context;
-using API.Core.WebSocket.InternalStructure;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using API.Core.WebSocket.InternalStructure;
 
 namespace API.Core.WebSocket.Context
 {
@@ -17,6 +17,7 @@ namespace API.Core.WebSocket.Context
         public virtual void OnOpen() { }
         public virtual void OnMessage(string message) { throw new NotImplementedException(); }
         public virtual void OnMessage(byte[] message) { throw new NotImplementedException(); }
+        public virtual Task OnSend(Message message) { throw new NotImplementedException(); }
         public virtual void OnError() { }
         public virtual void OnClosed() { }
 
@@ -26,13 +27,17 @@ namespace API.Core.WebSocket.Context
         public string ConnectionID { get; set; }
         public Func<bool, Task> Disconnected { get; set; }
 
-        public Task ProcessReqeust(System.Net.WebSockets.WebSocket webSocket)
+        public IContextConnection Connection { get; private set; }
+
+        public Task ProcessReqeust(System.Net.WebSockets.WebSocket webSocket, IContextConnection connection)
         {
+            Connection = connection;
             _webSocket = webSocket;
             _disconnectToken = new CancellationToken();
             OnOpen();
+            Connection.Send(OnSend, this);
             return ReceiveAsync(_webSocket, _disconnectToken);
-        }
+        }        
         private async Task ReceiveAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken disconnectToken)
         {
             bool closedReceived = false;
@@ -43,7 +48,7 @@ namespace API.Core.WebSocket.Context
                 while (!disconnectToken.IsCancellationRequested && !closedReceived)
                 {
                     var result = await webSocket.ReceiveAsync(arraySegment, disconnectToken);
-                    if (result.MessageType == WebSocketMessageType.Close)
+                    if(result.MessageType == WebSocketMessageType.Close)
                     {
                         closedReceived = true;
                         await Task.WhenAny(CloseAsync(), Task.Delay(_closeTimeout));
@@ -56,10 +61,9 @@ namespace API.Core.WebSocket.Context
                     {
                         OnMessage(arraySegment.Array);
                     }
-
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Trace.Write("Error Receiving : " + ex.Message);
             }
@@ -71,17 +75,18 @@ namespace API.Core.WebSocket.Context
             {
                 OnClosed();
             }
-
+            
         }
         private async Task SendAsync(ArraySegment<byte> message, WebSocketMessageType messageType, bool endOfMessage = true)
         {
             if (_webSocket.State != WebSocketState.Open)
                 return;
+
             try
             {
                 await _webSocket.SendAsync(message, messageType, endOfMessage, CancellationToken.None);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Trace.TraceError("Error Sending : " + ex.Message);
             }
@@ -106,6 +111,7 @@ namespace API.Core.WebSocket.Context
             }
             return Task.CompletedTask;
         }
+
         public Task Send(Message message)
         {
             message.ConnectionID = ConnectionID;
