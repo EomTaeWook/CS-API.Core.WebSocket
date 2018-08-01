@@ -16,6 +16,5 @@ namespace API.Core.WebSocket.Extensions
             services.TryAddSingleton<HubDispatcher>();
             return services;
         }
-
     }
 }

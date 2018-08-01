@@ -20,11 +20,10 @@ namespace API.Core.WebSocket.InternalStructure
             if (message == null)
                 throw new ArgumentNullException("message");
             message.ConnectionID = _connectionID;
-            if(_sendCallback == null)
+            if (_sendCallback != null)
                 return _sendCallback(message);
             return Task.CompletedTask;
         }
-
         public void Send(Func<Message, Task> callback, object state)
         {
             _sendCallback = callback ?? throw new ArgumentNullException("callback");

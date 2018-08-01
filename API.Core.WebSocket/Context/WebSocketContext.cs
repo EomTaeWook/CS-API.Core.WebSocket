@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using API.Core.WebSocket.InternalStructure;
 
 namespace API.Core.WebSocket.Context
@@ -37,35 +38,37 @@ namespace API.Core.WebSocket.Context
             OnOpen();
             Connection.Send(OnSend, this);
             return ReceiveAsync(_webSocket, _disconnectToken);
-        }        
+        }
         private async Task ReceiveAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken disconnectToken)
         {
             bool closedReceived = false;
             var buffer = new byte[4096];
-            var arraySegment = new ArraySegment<byte>(buffer);
+
             try
             {
                 while (!disconnectToken.IsCancellationRequested && !closedReceived)
                 {
+                    var arraySegment = new ArraySegment<byte>(buffer);
                     var result = await webSocket.ReceiveAsync(arraySegment, disconnectToken);
-                    if(result.MessageType == WebSocketMessageType.Close)
+                    if (result.MessageType == WebSocketMessageType.Close)
                     {
                         closedReceived = true;
                         await Task.WhenAny(CloseAsync(), Task.Delay(_closeTimeout));
                     }
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
-                        OnMessage(Encoding.UTF8.GetString(arraySegment.Array));
+                        OnMessage(Encoding.UTF8.GetString(arraySegment.Array.Take(result.Count).ToArray()));
                     }
                     else if (result.MessageType == WebSocketMessageType.Binary)
                     {
-                        OnMessage(arraySegment.Array);
+                        OnMessage(arraySegment.Array.Take(result.Count).ToArray());
                     }
+
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Trace.Write("Error Receiving : " + ex.Message);
+                Trace.WriteLine("Error Receiving : " + ex.Message);
             }
             try
             {
@@ -75,7 +78,7 @@ namespace API.Core.WebSocket.Context
             {
                 OnClosed();
             }
-            
+
         }
         private async Task SendAsync(ArraySegment<byte> message, WebSocketMessageType messageType, bool endOfMessage = true)
         {
@@ -86,7 +89,7 @@ namespace API.Core.WebSocket.Context
             {
                 await _webSocket.SendAsync(message, messageType, endOfMessage, CancellationToken.None);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError("Error Sending : " + ex.Message);
             }

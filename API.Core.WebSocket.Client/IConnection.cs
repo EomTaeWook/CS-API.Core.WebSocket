@@ -14,6 +14,7 @@ namespace API.Core.WebSocket.Client
         string Url { get; }
         IContextClient Client { get; }
         Task Send(string data);
-        void OnReceived(string data);
+        void OnReceived(JToken data);
+        void Disconnect();
     }
 }

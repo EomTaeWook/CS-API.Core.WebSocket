@@ -9,5 +9,6 @@ namespace API.Core.WebSocket.Client.Hubs
     public interface IHubProxy
     {
         Task Invoke(string method, params object[] args);
+        Subscription Subscription(string methodName);
     }
 }

@@ -13,5 +13,7 @@ namespace API.Core.WebSocket.Context
         Func<Task> Reconnected { get; set; }
         Func<bool, Task> Disconnected { get; set; }
         string ConnectionID { get; set; }
+
+        IContextConnection Connection { get; }
     }
 }

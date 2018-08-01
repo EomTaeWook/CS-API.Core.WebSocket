@@ -31,7 +31,6 @@ namespace API.Core.WebSocket.Hubs
                 Message = message
             };
             return Invoker.Send(InvokerContext);
-
         }
         protected virtual HubMessage GetInvocationData(string method, object[] args)
         {

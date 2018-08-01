@@ -34,10 +34,10 @@ namespace API.Core.WebSocket.Client.Hubs
             if (args == null)
                 throw new ArgumentNullException("args");
 
-            var tokenifiedArguments = new JToken[args.Length];
-            for (int i = 0; i < tokenifiedArguments.Length; i++)
+            var tokenArgs = new JToken[args.Length];
+            for (int i = 0; i < tokenArgs.Length; i++)
             {
-                tokenifiedArguments[i] = args[i] != null ? JToken.FromObject(args[i]) : JValue.CreateNull();
+                tokenArgs[i] = args[i] != null ? JToken.FromObject(args[i]) : JValue.CreateNull();
             }
             var hubReqeust = new Message()
             {
@@ -46,7 +46,7 @@ namespace API.Core.WebSocket.Client.Hubs
                     {
                         Hub = _hubName,
                         Method = method,
-                        Args = tokenifiedArguments
+                        Args = tokenArgs
                     }
                 }
             };
@@ -77,7 +77,7 @@ namespace API.Core.WebSocket.Client.Hubs
                     return;
                 }
                 subscription.OnCallback.DynamicInvoke(args.Select((r, index) =>
-                    JsonConvert.DeserializeObject(r[index].ToString(), _setting)).ToArray());
+                    JsonConvert.DeserializeObject(r.ToString(), _setting)).ToArray());
             }
         }
     }

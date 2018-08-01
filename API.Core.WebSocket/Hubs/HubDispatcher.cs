@@ -6,6 +6,8 @@ using API.Core.WebSocket.Extensions;
 using System.Linq;
 using API.Core.WebSocket.InternalStructure;
 using API.Core.WebSocket.Hubs.Pipeline;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace API.Core.WebSocket.Hubs
 {
@@ -42,6 +44,7 @@ namespace API.Core.WebSocket.Hubs
         }
         protected override Task OnReceived(HostContext context, string data)
         {
+            Trace.WriteLine($"OnReceived : { data }");
             var request = Newtonsoft.Json.JsonConvert.DeserializeObject<Message>(data);
 
             var setting = new Newtonsoft.Json.JsonSerializerSettings();
@@ -54,8 +57,11 @@ namespace API.Core.WebSocket.Hubs
                 var methodDescriptor = _manager.GetHubMethod(hubDescriptor.Name, req.Method, req.Args.ToArray());
                 var hub = _activator.Create(hubDescriptor);
                 hub.Clients = new HubConnectionContextBase(hubDescriptor.Name, Connection, _pipelineInvoker);
-                methodDescriptor.Invoke(hub,
-                    req.Args.Select((r, index) => Newtonsoft.Json.JsonConvert.DeserializeObject(r.ToString(), methodDescriptor.Parameters[index].ParameterType, setting)).ToArray());
+                var param = req.Args.Select((r, index) =>
+                {
+                    return JsonSerializer.Deserialize(JToken.FromObject(r), methodDescriptor.Parameters[index].ParameterType);
+                }).ToArray();
+                methodDescriptor.Invoke(hub, param);
             }
             return base.OnReceived(context, data);
         }

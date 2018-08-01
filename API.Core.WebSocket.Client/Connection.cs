@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace API.Core.WebSocket.Client
 {
-    public abstract class Connection : IConnection
+    public class Connection : IConnection
     {
         protected bool _connected;
         private bool _dispose;
@@ -24,9 +24,12 @@ namespace API.Core.WebSocket.Client
 
         private CancellationTokenSource _disconnectCts;
 
+        public event Action<string> Received;
+        public event Action Closed;
+        public event Action<Exception> OnError;
+
         protected Connection(string url)
         {
-            _disconnectCts = new CancellationTokenSource();
             _sycn = new object();
             Url = url;
         }
@@ -48,7 +51,8 @@ namespace API.Core.WebSocket.Client
         {
             try
             {
-                Monitor.Enter(_sycn);
+                Monitor.TryEnter(_sycn);
+                _disconnectCts = new CancellationTokenSource();
                 return Negotiate(new WebSocketClient());
             }
             finally
@@ -65,12 +69,57 @@ namespace API.Core.WebSocket.Client
                 ConnectionID = r.Result.ConnectionID;
                 ConnectionToken = r.Result.ConnectionToken;
 
-                return Client.Start(this, _disconnectCts.Token);
-            });
+                return Client.Start(this, CancellationToken.None);
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
-        public void OnReceived(string data)
-        {   
 
+        protected virtual void OnSending(JToken data)
+        {
+
+        }
+        protected virtual void OnClosed()
+        {
+            Closed?.Invoke();
+        }
+
+        void IConnection.OnReceived(JToken message)
+        {
+            OnMessageReceived(message);
+        }
+        protected virtual void OnMessageReceived(JToken message)
+        {
+            if (Received != null)
+            {
+                try
+                {
+                    Received(message.ToString());
+                }
+                catch (Exception ex)
+                {
+                    OnError(ex);
+                }
+            }
+        }
+        void IConnection.Disconnect()
+        {
+            Disconnect();
+        }
+
+        private void Disconnect()
+        {
+            try
+            {
+                if (Monitor.TryEnter(this))
+                {
+                    _disconnectCts.Cancel();
+                    _disconnectCts.Dispose();
+                    OnClosed();
+                }
+            }
+            finally
+            {
+                Monitor.Exit(this);
+            }
         }
     }
 }

@@ -14,7 +14,9 @@ namespace API.Core.WebSocket
     {
         public IConnection Connection { get; private set; }
         protected IProtectedData ProtectedData { get; private set; }
+        protected IJsonSerializer JsonSerializer { get; private set; }
         private bool _initialized;
+
         protected virtual Task OnConnected(HostContext context)
         {
             return Task.CompletedTask;
@@ -40,6 +42,7 @@ namespace API.Core.WebSocket
                 return;
 
             ProtectedData = resolver.GetService<IProtectedData>();
+            JsonSerializer = resolver.GetService<IJsonSerializer>();
             _initialized = true;
         }
         private bool IsNegotiationRequest(HttpRequest request)
@@ -56,7 +59,6 @@ namespace API.Core.WebSocket
         }
         private Task ProcessRequest(HostContext context)
         {
-           
             if (IsNegotiationRequest(context.Request))
                 return ProcessNegotiationRequest(context);
 
@@ -68,7 +70,7 @@ namespace API.Core.WebSocket
             string message;
             int statusCode;
             TryGetConnectionID(context, connectionToken, out connectionID, out message, out statusCode);
-            if(String.IsNullOrEmpty(connectionID))
+            if (String.IsNullOrEmpty(connectionID))
                 return FailResponse(context.Response, message);
 
             context.ConnectionID = connectionID;
@@ -108,15 +110,15 @@ namespace API.Core.WebSocket
             }
 
             var tokens = unprotectedConnectionToken.Split(':', 2);
-            if(tokens.Length < 1)
+            if (tokens.Length < 1)
             {
                 message = "ConnectionIdIncorrectFormat";
                 return false;
             }
-            connectionID = tokens[0];           
+            connectionID = tokens[0];
             return true;
         }
-        
+
         private Task ProcessNegotiationRequest(HostContext context)
         {
             string connectionID = Guid.NewGuid().ToString("d");

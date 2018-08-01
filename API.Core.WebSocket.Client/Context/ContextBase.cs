@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using API.Core.WebSocket.Client.InternalStructure;
+using Newtonsoft.Json.Linq;
 
 namespace API.Core.WebSocket.Client.Context
 {
@@ -70,9 +71,12 @@ namespace API.Core.WebSocket.Client.Context
         }
 
         public virtual Task Send(IConnection connection, string data)
-        {
+        {
             return Task.CompletedTask;
         }
+
+        protected abstract void OnStart(IConnection connection, CancellationToken disconnectToken);
+        protected abstract void OnStartFailed();
 
         public virtual Task Start(IConnection connection, CancellationToken disconnectToken)
         {
@@ -81,14 +85,19 @@ namespace API.Core.WebSocket.Client.Context
             OnStart(connection, disconnectToken);
             return Task.CompletedTask;
         }
-        protected abstract void OnStart(IConnection connection, CancellationToken disconnectToken);
 
-        public Task Close(IConnection connection, CancellationToken disconnectToken)
+        protected abstract void OnClose();
+
+        protected virtual bool OnResponse(IConnection connection, string response)
         {
-            OnClose(connection, disconnectToken);
-            disconnectToken.ThrowIfCancellationRequested();
-            return Task.CompletedTask;
+            if (connection == null)
+                throw new ArgumentNullException("connection");
+            if (String.IsNullOrEmpty(response))
+                return false;
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(response);
+
+            connection.OnReceived(result);
+            return true;
         }
-        protected abstract void OnClose(IConnection connection, CancellationToken disconnectToken);
     }
 }

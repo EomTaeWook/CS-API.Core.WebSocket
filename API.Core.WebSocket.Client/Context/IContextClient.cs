@@ -12,6 +12,5 @@ namespace API.Core.WebSocket.Client.Context
         Task<NegotiateResponse> Negotiate(IConnection connection);
         Task Send(IConnection connection, string data);
         Task Start(IConnection connection, CancellationToken disconnectToken);
-        Task Close(IConnection connection, CancellationToken disconnectToken);
     }
 }
