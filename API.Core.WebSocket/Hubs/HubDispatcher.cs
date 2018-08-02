@@ -57,11 +57,9 @@ namespace API.Core.WebSocket.Hubs
                 var methodDescriptor = _manager.GetHubMethod(hubDescriptor.Name, req.Method, req.Args.ToArray());
                 var hub = _activator.Create(hubDescriptor);
                 hub.Clients = new HubConnectionContextBase(hubDescriptor.Name, Connection, _pipelineInvoker);
-                var param = req.Args.Select((r, index) =>
+                methodDescriptor.Invoke(hub, req.Args.Select((r, index) =>
                 {
-                    return JsonSerializer.Deserialize(JToken.FromObject(r), methodDescriptor.Parameters[index].ParameterType);
-                }).ToArray();
-                methodDescriptor.Invoke(hub, param);
+                    return JsonSerializer.Deserialize(JToken.FromObject(r), methodDescriptor.Parameters[index].ParameterType);                }).ToArray());
             }
             return base.OnReceived(context, data);
         }
