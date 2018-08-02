@@ -6,7 +6,7 @@ using API.Core.WebSocket.Hubs;
 
 namespace API.Core.WebSocket
 {
-    public abstract class Hub : IHub, IDisposable
+    public abstract class Hub : IHub
     {
         private bool _disposed;
         protected Hub()
@@ -14,11 +14,7 @@ namespace API.Core.WebSocket
 
         }
         public HostContext Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public IHubConnectionContext<dynamic> Clients
-        {
-            get;
-            set;
-        }
+        public IHubConnectionContext<dynamic> Clients { get; set; }
         protected virtual void Dispose(bool isDispose)
         {
 

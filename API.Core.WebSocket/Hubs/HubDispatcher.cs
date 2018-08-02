@@ -60,6 +60,7 @@ namespace API.Core.WebSocket.Hubs
                 methodDescriptor.Invoke(hub, req.Args.Select((r, index) =>
                 {
                     return JsonSerializer.Deserialize(JToken.FromObject(r), methodDescriptor.Parameters[index].ParameterType);                }).ToArray());
+                hub.Dispose();
             }
             return base.OnReceived(context, data);
         }

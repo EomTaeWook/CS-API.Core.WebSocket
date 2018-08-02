@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace API.Core.WebSocket.Hubs
 {
-    public interface IHub
+    public interface IHub : IDisposable
     {
         HostContext Context { get; set; }
         IHubConnectionContext<dynamic> Clients { get; set; }

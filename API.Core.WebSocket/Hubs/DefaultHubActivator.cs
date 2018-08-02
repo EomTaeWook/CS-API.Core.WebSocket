@@ -14,7 +14,7 @@ namespace API.Core.WebSocket.Hubs
             _resolver = resolver;
         }
 
-        public IHub Create(HubDescriptor descriptor)
+        public Hub Create(HubDescriptor descriptor)
         {
             if (descriptor == null)
                 throw new ArgumentNullException("descriptor");
@@ -22,7 +22,7 @@ namespace API.Core.WebSocket.Hubs
             if (descriptor.HubType == null)
                 return null;
             object hub = _resolver.GetService(descriptor.HubType) ?? Activator.CreateInstance(descriptor.HubType);
-            return hub as IHub;
+            return hub as Hub;
         }
     }
 }

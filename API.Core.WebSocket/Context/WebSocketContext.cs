@@ -63,7 +63,6 @@ namespace API.Core.WebSocket.Context
                     {
                         OnMessage(arraySegment.Array.Take(result.Count).ToArray());
                     }
-
                 }
             }
             catch (Exception ex)
