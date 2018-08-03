@@ -7,6 +7,6 @@ namespace API.Core.WebSocket.Hubs
 {
     public interface IHubActivator
     {
-        Hub Create(HubDescriptor hubDescriptor);
+        IHub Create(HubDescriptor hubDescriptor);
     }
 }
