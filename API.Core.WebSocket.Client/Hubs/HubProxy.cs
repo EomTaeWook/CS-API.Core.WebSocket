@@ -15,13 +15,9 @@ namespace API.Core.WebSocket.Client.Hubs
         private readonly string _hubName;
         private readonly IConnection _connection;
         private readonly Dictionary<string, Subscription> _callbacks;
-        private readonly JsonSerializerSettings _setting;
 
         public HubProxy(IConnection connection, string hubName)
         {
-            _setting = new JsonSerializerSettings();
-            _setting.TypeNameHandling = TypeNameHandling.All;
-            _setting.MissingMemberHandling = MissingMemberHandling.Error;
             _connection = connection;
             _hubName = hubName;
             _callbacks = new Dictionary<string, Subscription>();
@@ -76,8 +72,8 @@ namespace API.Core.WebSocket.Client.Hubs
                     Trace.WriteLine("Invalid Number Of Arguments");
                     return;
                 }
-                subscription.OnCallback.DynamicInvoke(args.Select((r, index) =>
-                    JsonConvert.DeserializeObject(r.ToString(), _setting)).ToArray());
+                subscription.OnCallback.DynamicInvoke(args.Select(
+                    r => r.ToObject<object>()).ToArray());
             }
         }
     }

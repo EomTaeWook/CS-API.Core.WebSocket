@@ -10,7 +10,7 @@ namespace API.Core.WebSocket.InternalStructure
     public class Message
     {
         public string Key { get; set; }
-        public IList<HubMessage> Value { get; set; }
+        public HubMessage Value { get; set; }
         public string ConnectionID { get; set; }
         public string ConnectionToken { get; set; }
     }

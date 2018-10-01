@@ -47,21 +47,22 @@ namespace API.Core.WebSocket.Hubs
             Trace.WriteLine($"OnReceived : { data }");
             var request = Newtonsoft.Json.JsonConvert.DeserializeObject<Message>(data);
 
-            var setting = new Newtonsoft.Json.JsonSerializerSettings();
-            setting.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
-            setting.MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Error;
-
-            foreach (var req in request.Value)
+            var setting = new Newtonsoft.Json.JsonSerializerSettings
             {
-                var hubDescriptor = _manager.GetHub(req.Hub);
-                var methodDescriptor = _manager.GetHubMethod(hubDescriptor.Name, req.Method, req.Args.ToArray());
-                var hub = _activator.Create(hubDescriptor);
-                hub.Clients = new HubConnectionContextBase(hubDescriptor.Name, Connection, _pipelineInvoker);
-                methodDescriptor.Invoke(hub, req.Args.Select((r, index) =>
-                {
-                    return JsonSerializer.Deserialize(JToken.FromObject(r), methodDescriptor.Parameters[index].ParameterType);                }).ToArray());
-                hub.Dispose();
-            }
+                TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
+                MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Error
+            };
+
+            var hubDescriptor = _manager.GetHub(request.Value.Hub);
+            var methodDescriptor = _manager.GetHubMethod(hubDescriptor.Name, request.Value.Method, request.Value.Args.ToArray());
+            var hub = _activator.Create(hubDescriptor);
+            hub.Clients = new HubConnectionContextBase(hubDescriptor.Name, Connection, _pipelineInvoker);
+            methodDescriptor.Invoke(hub, request.Value.Args.Select((r, index) =>
+            {
+                return JsonSerializer.Deserialize(JToken.FromObject(r), methodDescriptor.Parameters[index].ParameterType);
+            }).ToArray());
+            hub.Dispose();
+
             return base.OnReceived(context, data);
         }
         internal static Task SendAsync(IHubPipelineInvokerContext context)
